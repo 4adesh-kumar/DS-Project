@@ -24,6 +24,14 @@ class Data
     {
         return label;
     }
+    void display()
+    {
+        for(auto i : image)
+        {
+            printf("%u",i);
+        }
+    }
+   
 };
 
 uint32_t format(const unsigned char* bytes)
@@ -34,60 +42,86 @@ uint32_t format(const unsigned char* bytes)
                     (bytes[3]));
 }
 vector<Data*>imageData;
-Data *d = new Data;
+
 void ReadImageInput()
 {
-    uint32_t num, magic, rows, cols; //32 bits data
-    // ifstream *icin;
-    FILE *icin=fopen("train-images.idx3-ubyte", "r");
+    uint32_t num=0, magic=0, rows=0, cols=0; //32 bits data
+     ifstream icin;
+     icin.open("train-images.idx3-ubyte", ios::binary);
     unsigned char bytes[4];
     int i=0;
     while(i<4)
     {
-        if(fread(bytes,sizeof(bytes),1,icin)) //reading 32 bits
+        if(icin.read((char*)bytes,sizeof(bytes))) //reading 32 bits
         {
             if(i==0)
+            {
                 magic=format(bytes); //format will convert 32 bits to little endian order
+                i++;
+            }
             else if(i==1)
+            {
                 num=format(bytes);
+                i++;
+            }
             else if(i==2)
+            {
                 rows=format(bytes);
+                i++;
+            }
             else if(i==3)
+            {
                 cols=format(bytes);
-            i++;
+                i++;
+            }
         }
 
     }
     
     uint32_t imageSize=rows*cols;
+    Data *d =0;
     for(int i=0; i<num;i++)
     {
-        uint8_t elem;
+        uint8_t elem[1];
+        d = new Data();
         for(int j=0; j<imageSize;j++)
         {
-            if(fread(bytes,sizeof(bytes),1,icin))
-            {
-                d->append_image(elem);
-            }
+            icin.read((char*)elem,sizeof(elem));   
+            d->append_image(elem[0]);            
         }
         imageData.push_back(d);
+     
+        //d->display();
+        //cout<<"\n";
+        d=0;
     }
+
     printf("Successfully read image data: ");
     cout<<imageData.size()<<"\n";
 
+    
+    //printing images data
+    for(int i=0; i<num; i++)
+    { 
+        imageData[i]->display();
+        printf("\n");
+    }
+
+
+    
 }
 
     //ReadLabelInput will read label for each image and store it in uint8_t label in Data
  void ReadLabelInput()
  {
      uint32_t num, magic; //32 bits data
-    // ifstream *icin;
-    FILE *icin=fopen("train-labels.idx1-ubyte", "r");
+     ifstream icin;
+    icin.open("train-labels.idx1-ubyte", ios::binary);
     unsigned char bytes[4];
     int i=0;
     while(i<2)
     {
-        if(fread(bytes,sizeof(bytes),1,icin)) //reading 32 bits
+        if(icin.read((char*)bytes,sizeof(bytes))) //reading 32 bits
         {
             if(i==0)
                 magic=format(bytes); //format will convert 32 bits to little endian order
@@ -102,13 +136,17 @@ void ReadImageInput()
     for(int j=0; j<num;j++)
     {
         uint8_t elem[1];
-            if(fread(elem,sizeof(elem),1,icin))
+        //Data* d;
+        //d=imageData[i];
+            if(icin.read((char*)elem,sizeof(elem)))
             {
-                d->set_label(elem[0]);
+                imageData[i]->set_label(elem[0]);
             }
         
-        imageData.push_back(d);
+        //imageData.push_back(d);
+        cout<<"\n";
     }
+   
     printf("Successfully read image labels: ");
     cout<<imageData.size()<<"\n";
  }
@@ -128,7 +166,7 @@ void ReadImageInput()
 
 int main() {
     ReadImageInput();
-	ReadLabelInput();
+	//ReadLabelInput();
     // ifstream icin;
     // icin.open("train-images.idx3-ubyte", ios::binary);
     // magic = in(icin, 4);
