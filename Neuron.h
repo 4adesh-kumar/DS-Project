@@ -8,6 +8,7 @@ using namespace std;
 class Neuron
 {
 	vector<double> weight;                    // Weight from one node to next layer's node
+	vector<double> change_in_weight;
 	double output_val;
 public:
 	Neuron(int prev_layer_neurons=0);
@@ -19,5 +20,6 @@ public:
 
 
 #endif // !NEURON
+
 
 
