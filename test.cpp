@@ -1,22 +1,18 @@
-#include <fstream>
 #include <iostream>
-#include<vector>
+#include <fstream>
+#include <vector>
 using namespace std;
-
-//const int MAXN = 6e4 + 7;
-//unsigned int image[MAXN][28][28];
-//unsigned int label[MAXN];
 
 class Data
 {
     vector<uint8_t>image;
-    uint8_t label;
+    int label;
     public:
     void append_image(uint8_t d)
     {
         image.push_back(d);
     }
-    void set_label(uint8_t l)
+    void set_label(int32_t l)
     {
         label=l;
     }
@@ -26,10 +22,12 @@ class Data
     }
     void display()
     {
-        for(auto i : image)
-        {
-            printf("%u",i);
+        for(int i=0; i<784; ++i) {
+            if(i%28 == 0 && i) cout<<"\n";
+            cout << (image[i]!=0);
         }
+        cout << "\n";
+        cout << "Label: " << label << "\n";
     }
    
 };
@@ -90,25 +88,22 @@ void ReadImageInput()
             d->append_image(elem[0]);            
         }
         imageData.push_back(d);
-     
-        //d->display();
-        //cout<<"\n";
         d=0;
     }
 
+
+    icin.close();
     printf("Successfully read image data: ");
     cout<<imageData.size()<<"\n";
 
     
     //printing images data
-    for(int i=0; i<num; i++)
-    { 
-        imageData[i]->display();
-        printf("\n");
-    }
-
-
-    
+    // for(int i=0; i<num; i++)
+    // { 
+    //  cout << i << "\n";
+    //     imageData[i]->display();
+    //     printf("\n");
+    // }
 }
 
     //ReadLabelInput will read label for each image and store it in uint8_t label in Data
@@ -136,62 +131,23 @@ void ReadImageInput()
     for(int j=0; j<num;j++)
     {
         uint8_t elem[1];
-        //Data* d;
-        //d=imageData[i];
-            if(icin.read((char*)elem,sizeof(elem)))
-            {
-                imageData[i]->set_label(elem[0]);
-            }
-        
-        //imageData.push_back(d);
-        cout<<"\n";
+        if(icin.read((char*)elem,sizeof(elem))) {
+            imageData[j]->set_label((int32_t)elem[0]);
+        }
     }
    
+    icin.close();
     printf("Successfully read image labels: ");
-    cout<<imageData.size()<<"\n";
+    cout << imageData.size() << "\n";
  }
-
-// unsigned int in(ifstream& file, unsigned int size) {
-//     unsigned int ans = 0;
-//     for (int i = 0; i < size; i++) {
-//         unsigned char x;
-//         file.read((char*)&x, 1);
-//         unsigned int temp = x;
-//         ans *= 256;
-//         ans += temp;
-//     }
-//     return ans;
-// }
 
 
 int main() {
     ReadImageInput();
-	//ReadLabelInput();
-    // ifstream icin;
-    // icin.open("train-images.idx3-ubyte", ios::binary);
-    // magic = in(icin, 4);
-    // num = in(icin, 4);
-    // rows = in(icin, 4);
-    // cols = in(icin, 4);
-    // for (int i = 0; i < num; i++) {
-    //     for (int x = 0; x < rows; x++) {
-    //         for (int y = 0; y < cols; y++) {
-    //             image[i][x][y] = in(icin, 1);
-    //             if(image[i][x][y] == 0) {
-    //             	printf("-");
-    //             } else {
-    //             	printf("A");
-    //             }
-    //         }
-    //         printf("\n");
-    //     }
-    //     printf("\n\n");
-    // }
-    // icin.close();
-    // icin.open("train-labels.idx1-ubyte", ios::binary);
-    // magic = in(icin, 4), num = in(icin, 4);
-    // for (int i = 0; i < num; i++) {
-    //     label[i] = in(icin, 1);
-    // }
-	return 0;
+    ReadLabelInput();
+    for(int i=0; i<imageData.size(); ++i) {
+        imageData[i]->display();
+        cout << "\n";
+    }
+    return 0;
 }
