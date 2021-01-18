@@ -143,6 +143,14 @@ void ReadImageInput()
 
 
 int main() {
+	int choice;
+	while(true){
+		cout<<"1. Train data \n\n2. Store weights in file\n\n3. Recognize the digit\n\n0. Exit\n\nselect : ";
+		cin>>choice;
+		if(choice==0)
+		break;
+		
+	}
     ReadImageInput();
     ReadLabelInput();
     for(int i=0; i<imageData.size(); ++i) {
