@@ -5,11 +5,13 @@ using namespace std;
 
 Network::Network(vector<int> layer) 
 {
+	learning_rate = 0.2;
+	epoch_lim = 100;
 	int prev = 0;
-	for (int i = 0; i < layer.size(); i++) 
+	for (int i = 0; i < layer.size(); i++)
 	{
 		layers.push_back(vector<Neuron>());
-		for (int j = 0; j <= layer[i]; j++)           // one extra bias neuron for every layer thatswhy <= 
+		for (int j = 0; j < layer[i]; j++)
 		{ 
 			this->layers[i].push_back(Neuron(prev));
 			cout << "Neuron added in " << i << " layer!" << endl;
@@ -17,44 +19,111 @@ Network::Network(vector<int> layer)
 		prev = layer[i];
 	}
 }
-void Network::set_output_values(const vector<double> &input)        // Forward propogation 
+
+void Network::forward_feed(const vector<double> &input, bool training, int Y)        // Forward propogation 
 {
 	if (input.size() == layers[0].size() - 1)
 	{
-		double sum = 0;
 		for (int i = 0; i < input.size(); i++)
 		{
-			layers[0][i].set_output_val(input[i]);     // input in input layer
-		}
-		for (int i = 0; i < layers.size(); i++)
-		{
-			layers[i][layers[i].size() - 1].set_output_val(1);              // every bias node have value 1 
+			layers[0][i].activation = input[i];     // input in input layer
 		}
 		for (int i = 1; i < layers.size(); i++)
 		{
-			for (int j = 0; j < layers[i].size()-1; j++)
+			for (int j = 0; j < layers[i].size(); j++)
 			{
-				sum = 0;
+				layers[i][j].output_val = 0;
 				for (int k = 0; k < layers[i - 1].size(); k++)
 				{
-					sum += layers[i - 1][k].get_output_val() * layers[i][j].get_weight(k);
+					layers[i][j].output_val += layers[i - 1][k].activation * layers[i][j].weights[k];
 				}
-				layers[i][j].set_output_val(tanh(sum));     // activation function tanh
+				layers[i][j].output_val += layers[i][j].bias;
+				layers[i][j].activation = derivative(layers[i][j].output_val);
 			}
+		}
+		if (training)
+		{
+			vector<double> expected(10);
+			for(int i=0; i<10; ++i)
+			{
+				expected[i] = (i==Y);
+			}
+
+			back_propagation(expected);
+		}
+		else
+		{
+			double maxi = 0;
+			int predict;
+			for(int i = 0; i < layers[3].size(); ++i)
+			{
+				if (maxi < layers[3][i].activation)
+				{
+					maxi = layers[3][i].activation;
+					predict = i;
+				}
+			}
+			cout << predict << endl;
 		}
 	}
 	else
 		throw("Invalid input size");
 }
-double Network::derivative_of_activation_function(double value)            // 1- tan^2x
+
+void Network::back_propagation(const vector<double> &expected)
 {
-	return 1 - (tanh(value) * tanh(value));
-}
-void Network::printOutput() {
-	for (int i = 0; i < layers[layers.size() - 1].size(); i++) {
-		cout << layers[layers.size() - 1][i].get_output_val() << endl;
+	double d[4][10]={0};		// differential of Error function w.r.t layers[i][j].activation
+	double step_size;
+
+		// Used error function : 1/2 (output - predicted)^2
+
+	for (int i=0; i<layers[3].size(); ++i)
+	{
+		d[3][i] = - (expected[i] - layers[3][i].activation);
+	}
+
+	for (int i=2; i>=1; --i)
+	{
+		for (int j=0; j<layers[i].size(); ++j)
+		{
+			for (int k=0; k<layers[i+1].size(); ++k)
+			{
+				d[i][j] += d[i+1][k] * layers[i+1][k].weights[j] * derivative(layers[i+1][k].output_val);
+			}
+		}
+	}
+
+	for (int i = 3; i >= 1; --i)
+	{
+		for(int j = 0; j < layers[i].size(); ++j)
+		{
+			for(int k = 0; k < layers[i-1].size(); ++k)
+			{
+				step_size = layers[i][j].weights[k] * d[i][j] * derivative(layers[i][j].output_val);
+				layers[i][j].weights[k] = layers[i][j].weights[k] - step_size * learning_rate;
+			}
+			step_size = d[i][j] * derivative(layers[i][j].output_val);
+			layers[i][j].bias = layers[i][j].bias - step_size * learning_rate;
+		}
 	}
 }
+
+double Network::activation (double n)
+{
+	return 1.00 / (1.00 + expf(-n));
+}
+
+double Network::derivative(double value)            // sigmoid function derivative
+{
+	return activation(value) * (1.00 - activation(value));
+}
+
+void Network::printOutput() {
+	for (int i = 0; i < layers[layers.size() - 1].size(); i++) {
+		cout << layers[layers.size() - 1][i].activation << endl;
+	}
+}
+
 double Network::calculate_error(vector<double>& expected) {                     // Root mean square to calculating the total error
 	double total_error = 0;
 	for (int i = 0; i < layers[layers.size() - 1].size(); i++) {
