@@ -55,3 +55,14 @@ void Network::printOutput() {
 		cout << layers[layers.size() - 1][i].get_output_val() << endl;
 	}
 }
+double Network::calculate_error(vector<double>& expected) {                     // Root mean square to calculating the total error
+	double total_error = 0;
+	for (int i = 0; i < layers[layers.size() - 1].size(); i++) {
+		error[i] = expected[i] - layers[layers.size() - 1][i].get_output_val();  
+		error[i] *= error[i];
+		total_error += error[i];
+	}
+	total_error /= layers[layers.size() - 1].size();
+	sqrt(total_error);
+	return total_error;
+}

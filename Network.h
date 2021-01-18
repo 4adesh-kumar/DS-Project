@@ -13,6 +13,7 @@ public:
 	void set_output_values(const vector<double> &input);
 	void printOutput();
 	double derivative_of_activation_function(double value);
+	double calculate_error(vector<double>& expected);
 };
 
 
