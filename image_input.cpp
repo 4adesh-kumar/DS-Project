@@ -5,16 +5,27 @@ using namespace std;
 
 class Data
 {
-    vector<uint8_t>image;
+    vector<bool>image;
     int label;
     public:
     void append_image(uint8_t d)
     {
-        image.push_back(d);
+        if (d == 0)
+        {
+            image.push_back(0);
+        }
+        else
+        {
+            image.push_back(1);
+        }
+        
     }
     void set_label(int32_t l)
     {
         label=l;
+    }
+    vector<bool>& get_image() {
+        return image;
     }
     uint8_t get_label()
     {
@@ -22,9 +33,10 @@ class Data
     }
     void display()
     {
-        for(int i=0; i<784; ++i) {
-            if(i%28 == 0 && i) cout<<"\n";
-            cout << (image[i]!=0);
+        for(int i = 0; i < image.size(); ++i)
+        {
+            if(i%28 == 0 && i > 0) cout << "\n";
+            cout << image[i];
         }
         cout << "\n";
         cout << "Label: " << label << "\n";
@@ -43,18 +55,18 @@ vector<Data*>imageData;
 
 void ReadImageInput()
 {
-    uint32_t num=0, magic=0, rows=0, cols=0; //32 bits data
-     ifstream icin;
-     icin.open("train-images.idx3-ubyte", ios::binary);
+    uint32_t num=0, key=0, rows=0, cols=0; //32 bits data
+     ifstream file;
+     file.open("train-images.idx3-ubyte", ios::binary);
     unsigned char bytes[4];
     int i=0;
     while(i<4)
     {
-        if(icin.read((char*)bytes,sizeof(bytes))) //reading 32 bits
+        if(file.read((char*)bytes,sizeof(bytes))) //reading 32 bits
         {
             if(i==0)
             {
-                magic=format(bytes); //format will convert 32 bits to little endian order
+                key=format(bytes); //format will convert 32 bits to little endian order
                 i++;
             }
             else if(i==1)
@@ -84,7 +96,7 @@ void ReadImageInput()
         d = new Data();
         for(int j=0; j<imageSize;j++)
         {
-            icin.read((char*)elem,sizeof(elem));   
+            file.read((char*)elem,sizeof(elem));   
             d->append_image(elem[0]);            
         }
         imageData.push_back(d);
@@ -92,34 +104,26 @@ void ReadImageInput()
     }
 
 
-    icin.close();
+    file.close();
     printf("Successfully read image data: ");
     cout<<imageData.size()<<"\n";
 
-    
-    //printing images data
-    // for(int i=0; i<num; i++)
-    // { 
-    //  cout << i << "\n";
-    //     imageData[i]->display();
-    //     printf("\n");
-    // }
 }
 
     //ReadLabelInput will read label for each image and store it in uint8_t label in Data
  void ReadLabelInput()
  {
-     uint32_t num, magic; //32 bits data
-     ifstream icin;
-    icin.open("train-labels.idx1-ubyte", ios::binary);
+     uint32_t num, key; //32 bits data
+     ifstream file;
+    file.open("train-labels.idx1-ubyte", ios::binary);
     unsigned char bytes[4];
     int i=0;
     while(i<2)
     {
-        if(icin.read((char*)bytes,sizeof(bytes))) //reading 32 bits
+        if(file.read((char*)bytes,sizeof(bytes))) //reading 32 bits
         {
             if(i==0)
-                magic=format(bytes); //format will convert 32 bits to little endian order
+                key=format(bytes); //format will convert 32 bits to little endian order
             else if(i==1)
                 num=format(bytes);
             
@@ -131,12 +135,12 @@ void ReadImageInput()
     for(int j=0; j<num;j++)
     {
         uint8_t elem[1];
-        if(icin.read((char*)elem,sizeof(elem))) {
+        if(file.read((char*)elem,sizeof(elem))) {
             imageData[j]->set_label((int32_t)elem[0]);
         }
     }
    
-    icin.close();
+    file.close();
     printf("Successfully read image labels: ");
     cout << imageData.size() << "\n";
  }
