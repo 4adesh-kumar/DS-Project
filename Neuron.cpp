@@ -1,9 +1,10 @@
 #include "Neuron.h"
+
 Neuron::Neuron(int prev_layer_neurons)
 {
 	for (int i = 0; i <= prev_layer_neurons; i++)
 	{
-		weight.push_back(get_random_weight());
+		weights.push_back(get_random_weight());
 	}
 }
 double Neuron::get_output_val()
@@ -16,8 +17,8 @@ double Neuron::get_random_weight()
 }
 double Neuron::get_weight(int index)
 {
-	if (index >= 0 && index < weight.size())
-		return this->weight[index];
+	if (index >= 0 && index < weights.size())
+		return this->weights[index];
 
 	else
 		throw("Invalid weight index");
