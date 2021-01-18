@@ -7,7 +7,7 @@ using namespace std;
 
 class Neuron
 {
-	vector<double> weights;                    // Weight from one node to next layer's node
+	vector<double> weights;                    // Weight from one node to previous layer's node
 	double output_val;
 	double bias;
 	double activation;
