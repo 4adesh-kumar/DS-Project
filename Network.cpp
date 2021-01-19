@@ -22,7 +22,6 @@ Network::Network(vector<int> layer)
 void Network::train(int Y , const vector<double>&input)
 {
 	vector<double> expected(10);
-	printf("\t\t\t\ label: %u", Y);
 	for (int i = 0; i < 10; ++i)
 	{
 		if (i == Y)
@@ -35,17 +34,17 @@ void Network::train(int Y , const vector<double>&input)
 	{
 		forward_feed(input);
 		back_propagation(expected);
+	}
 		cout << "\noutput\n";
 		printOutput();
-	}
 	if (Y == max())
 	{
-		cout << "\n\t\t\tCorrect Output.." << "\n";
+		cout << "\n\t\t\tCorrect Output.. :"<<Y;
 	}
 	else
 	{
-		cout <<"\t\t\t"<< Y << "and" << max();
-		cout << "\n\t\t\tIncorrect Output.." << "\n";
+		cout << "\n\t\t\tIncorrect Output.. : " <<max()<< "\n";
+		cout <<"\t\t\t"<< "Expected: "<<Y;
 	}
 }
 int Network::max()
@@ -93,7 +92,7 @@ void Network::forward_feed(const vector<double>& input)        // Forward propog
 					maxi = layers[3][i].activation;
 					predict = i;
 				}
-			}
+			}s
 			cout << predict << endl;
 	*/	
 	}
@@ -102,6 +101,45 @@ void Network::forward_feed(const vector<double>& input)        // Forward propog
 }
 
 void Network::back_propagation(const vector<double>& expected)
+{
+	double d[4][10] = { 0 };		// differential of Error function w.r.t layers[i][j].output
+	double step_size;
+
+	// Used error function : 1/2 (output - predicted)^2
+
+	for (int i = 0; i < layers[layers.size() - 1].size(); ++i)
+	{
+		d[3][i] = -(expected[i] - layers[3][i].activation) * derivative(layers[3][i].get_output_val());
+	}
+
+	for (int i = layers.size() - 2; i >= 1; --i)
+	{
+		for (int j = 0; j < layers[i].size(); ++j)
+		{
+			for (int k = 0; k < layers[i + 1].size(); ++k)
+			{
+				d[i][j] += layers[i + 1][k].weights[j] * d[i + 1][k];
+			}
+			d[i][j] = d[i][j] * derivative(layers[i][j].get_output_val());
+		}
+	}
+
+	for (int i = layers.size() - 1; i >= 1; --i)
+	{
+		for (int j = 0; j < layers[i].size(); ++j)
+		{
+			for (int k = 0; k < layers[i - 1].size(); ++k)
+			{
+				step_size = layers[i - 1][k].activation * d[i][j];
+				layers[i][j].weights[k] = layers[i][j].weights[k] - step_size * learning_rate;
+			}
+			step_size = d[i][j];
+			layers[i][j].bias = layers[i][j].bias - step_size * learning_rate;
+		}
+	}
+}
+
+/*void Network::back_propagation(const vector<double>& expected)
 {
 	double d[4][10] = { 0 };		// differential of Error function w.r.t layers[i][j].activation
 	double step_size;
@@ -138,7 +176,7 @@ void Network::back_propagation(const vector<double>& expected)
 		}
 	}
 	//cout << calculate_error(expected)<<"\n";
-}
+}*/
 
 double Network::activation(double n)
 {
@@ -168,5 +206,8 @@ double Network::calculate_error(const vector<double>& expected) {               
 	sqrt(total_error);
 	return total_error;
 }
+
+
+
 
 
