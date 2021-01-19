@@ -5,26 +5,20 @@ using namespace std;
 
 class Data
 {
-    vector<bool>image;
+    vector<uint8_t>image;
     int label;
     public:
     void append_image(uint8_t d)
     {
-        if (d == 0)
-        {
-            image.push_back(0);
-        }
-        else
-        {
-            image.push_back(1);
-        }
+       image.push_back(d)
         
     }
     void set_label(int32_t l)
     {
         label=l;
     }
-    vector<bool>& get_image() {
+   vector<uint8_t>& getImage()
+    {
         return image;
     }
     uint8_t get_label()
@@ -146,20 +140,26 @@ void ReadImageInput()
  }
 
 
-int main() {
-	int choice;
-	while(true){
-		cout<<"1. Train data \n\n2. Store weights in file\n\n3. Recognize the digit\n\n0. Exit\n\nselect : ";
-		cin>>choice;
-		if(choice==0)
-		break;
-		
-	}
+
+int main()
+{
     ReadImageInput();
     ReadLabelInput();
-    for(int i=0; i<imageData.size(); ++i) {
-        imageData[i]->display();
-        cout << "\n";
+    vector<double>in;
+	vector<int>v = { 784,16,16,10 };
+	    Network n(v);
+    //printf("Label: %u", label);
+    for (int j = 0; j < imageData.size(); j++)
+    {
+        vector<uint8_t> image = imageData[j]->getImage();
+        int label = imageData[j]->get_label();
+        in.reserve(784);
+        for (int i = 0; i < 784; i++)
+        {
+            in.push_back(double(image[i]) / 255);
+            
+        }
+        n.train(label,in);
+        in.clear();
     }
-    return 0;
 }
