@@ -32,10 +32,10 @@ int main()
 	t.push_back(7);
 	t.push_back(10);      // output layer
 	Network net(t);
-	string path = "C:/Users/dell/Documents/Digits/nine.png";
+	string path = "nine.png";
 	int ch;
 	while (true) {
-		cout << "1. find digit in image\n\n2. Train neural network \n\n3. Save neural network in file\n\n0. Exit \n\n select : ";
+		cout << "1. find digit in image\n\n2. Train neural network \n\n3. Save neural network in file\n\n4. Get Trained Neural network from file\n\n0. Exit \n\n select : ";
 		cin >> ch;
 		if (ch == 1) {
 			findDigit(path,net);
@@ -46,7 +46,10 @@ int main()
 		else if (ch == 3) {
 			//net.saveThis();                            // Save this function will save/Write the object in file
 		}
-		if (ch == 0)
+		else if(ch==4){
+		   net.getTrainedNetwork();   
+		}
+		else if (ch == 0)
 			break;
 	}
 }
