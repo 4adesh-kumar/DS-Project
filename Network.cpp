@@ -80,7 +80,7 @@ void Network::forward_feed(const vector<double>& input)        // Forward propog
 					layers[i][j].output_val += layers[i - 1][k].activation * layers[i][j].weights[k];
 				}
 				layers[i][j].output_val += layers[i][j].bias;
-				layers[i][j].activation = derivative(layers[i][j].output_val);
+				layers[i][j].activation = activation(layers[i][j].output_val);
 			}
 		}
 		
