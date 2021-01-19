@@ -18,6 +18,8 @@ public:
 	double derivative(double value);
 	double activation(double value);
 	double calculate_error(vector<double>& expected);
+	void train(int,const vector<double>&);
+	int max();
 };
 
 
